@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CHAYARAT FARM FINAL V14.2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&display=swap');
+        body { font-family: 'Sarabun', sans-serif; background: #022c22; color: #f0fdf4; padding-bottom: 80px; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
+        .input-box { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; width: 100%; color: white; outline: none; }
+        .btn-gold { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #064e3b; font-weight: 800; padding: 12px; border-radius: 12px; width: 100%; box-shadow: 0 4px 0 #b45309; }
+        .btn-del { background: #ef4444; color: white; padding: 5px 10px; border-radius: 8px; font-size: 10px; font-weight: bold; }
+        .card { background: rgba(0,0,0,0.4); padding: 12px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+    </style>
+</head>
+<body>
+
+<div id="loader" class="fixed inset-0 bg-black/90 z-50 hidden flex flex-col items-center justify-center text-yellow-400">
+    <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-yellow-400 mb-4"></div>
+    <p class="text-xs">กำลังประมวลผล...</p>
+</div>
+
+<div class="max-w-md mx-auto p-5">
+    <header class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-black text-yellow-400 italic">CHAYARAT FARM</h1>
+            <p class="text-[10px] opacity-60">SMART FARM SYSTEM V14.2</p>
+        </div>
+        <div class="flex items-center gap-2 bg-emerald-500/20 px-3 py-1 rounded-full border border-emerald-500/30">
+            <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+            <span class="text-[10px] font-bold">LIVE</span>
+        </div>
+    </header>
+
+    <div class="glass p-5 mb-6 border-t-4 border-yellow-400 text-center shadow-xl">
+        <p class="text-[10px] opacity-50 mb-1 uppercase font-bold">กำไรสะสม</p>
+        <h2 class="text-4xl font-black text-white mb-4" id="stMainMoney">฿0</h2>
+        <div class="grid grid-cols-3 gap-2 text-[10px]">
+            <div class="bg-white/5 p-2 rounded-xl">ขาย (กก.)<br><b id="stKg" class="text-yellow-400 text-sm">0</b></div>
+            <div class="bg-white/5 p-2 rounded-xl">รายจ่าย<br><b id="stCost" class="text-rose-400 text-sm">0</b></div>
+            <div class="bg-white/5 p-2 rounded-xl">กำไร<br><b id="stProfit" class="text-emerald-400 text-sm">0</b></div>
+        </div>
+    </div>
+
+    <div class="glass p-4 mb-6 border-l-4 border-cyan-400">
+        <p class="text-cyan-400 font-bold text-xs mb-3 italic">🔔 รายการแจ้งเตือน</p>
+        <div class="space-y-2 mb-4">
+            <input id="alTitle" placeholder="ทำอะไร?" class="input-box text-sm">
+            <div class="grid grid-cols-2 gap-2"><input id="alDate" type="date" class="input-box text-xs"><input id="alTime" type="time" class="input-box text-xs"></div>
+            <button onclick="saveAlarm()" class="bg-cyan-600 text-white w-full py-3 rounded-xl font-bold text-sm">บันทึกแจ้งเตือน</button>
+        </div>
+        <div id="alarmList" class="max-h-40 overflow-y-auto pr-1"></div>
+    </div>
+
+    <div class="glass p-4 mb-6 border-l-4 border-yellow-400">
+        <p class="text-yellow-400 font-bold text-xs mb-3 italic">📸 ถ่ายรูปบันทึกพริก</p>
+        <input type="file" id="fInput" accept="image/*" class="hidden" onchange="compressImg(this)">
+        <button onclick="document.getElementById('fInput').click()" class="w-full py-3 border-2 border-dashed border-white/20 rounded-xl text-[10px] mb-3">แตะเพื่อถ่ายรูป</button>
+        <img id="imgPrev" class="hidden mb-3 rounded-lg w-full h-32 object-cover">
+        <button onclick="sendGrow()" class="btn-gold !py-2 text-xs">บันทึกรูปภาพ</button>
+        <div id="growList" class="grid grid-cols-3 gap-2 mt-4"></div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3 mb-6">
+        <div class="glass p-4 border-b-4 border-emerald-500">
+            <p class="text-emerald-400 font-bold text-[10px] mb-2 uppercase">🌶️ ขายพริก</p>
+            <input id="hKg" type="number" placeholder="กก." class="input-box mb-2 text-xs">
+            <input id="hPrice" type="number" placeholder="ราคา/กก." class="input-box mb-2 text-xs">
+            <button onclick="sendHarvest()" class="w-full bg-emerald-600 py-2 rounded-lg text-[10px] font-bold">บันทึกขาย</button>
+        </div>
+        <div class="glass p-4 border-b-4 border-rose-500">
+            <p class="text-rose-400 font-bold text-[10px] mb-2 uppercase">💸 จ่ายเงิน</p>
+            <input id="cName" placeholder="ค่าอะไร" class="input-box mb-2 text-xs">
+            <input id="cAmount" type="number" placeholder="กี่บาท" class="input-box mb-2 text-xs">
+            <button onclick="sendCost()" class="w-full bg-rose-600 py-2 rounded-lg text-[10px] font-bold">บันทึกจ่าย</button>
+        </div>
+    </div>
+
+    <div class="glass p-4 border-l-4 border-white/20 shadow-inner">
+        <p class="text-white font-bold text-[10px] mb-3 opacity-30 uppercase tracking-widest text-center">ประวัติล่าสุด</p>
+        <div id="transactionList"></div>
+    </div>
+</div>
+
+<script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwM-Mh4p5209qbOwGpmB0yfDSbmLYcUGklNfrgAOhSPg3YK1nbwqHIS6cna6jWCSfjAKg/exec';
+    let base64Img = "";
+
+    async function api(action, sheet, row = [], index = null) {
+        document.getElementById('loader').classList.remove('hidden');
+        await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action, sheet, row, index }) });
+        setTimeout(() => { location.reload(); }, 800);
+    }
+
+    function compressImg(input) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.src = e.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const scale = 500 / img.width;
+                canvas.width = 500; canvas.height = img.height * scale;
+                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                base64Img = canvas.toDataURL('image/jpeg', 0.6);
+                document.getElementById('imgPrev').src = base64Img;
+                document.getElementById('imgPrev').classList.remove('hidden');
+            }
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+
+    function saveAlarm() {
+        const d = document.getElementById('alDate').value.split('-');
+        api('add', 'alarms', [`${d[2]}/${d[1]}/${d[0]}`, document.getElementById('alTitle').value, document.getElementById('alTime').value, "Active"]);
+    }
+    function sendGrow() { api('add', 'growLog', [new Date().toLocaleDateString('th-TH'), "Update", base64Img]); }
+    function sendHarvest() { 
+        const kg = document.getElementById('hKg').value, pr = document.getElementById('hPrice').value;
+        api('add', 'harvests', [new Date().toLocaleDateString('th-TH'), kg, "พริก", kg * pr]); 
+    }
+    function sendCost() { api('add', 'costs', [new Date().toLocaleDateString('th-TH'), document.getElementById('cName').value, document.getElementById('cAmount').value]); }
+
+    async function fetchData() {
+        try {
+            const res = await fetch(SCRIPT_URL);
+            const data = await res.json();
+            render(data);
+        } catch(e) { document.getElementById('loader').classList.add('hidden'); }
+    }
+
+    function render(data) {
+        const tKg = (data.harvests || []).reduce((s,r) => s + Number(r[1]||0), 0);
+        const tIn = (data.harvests || []).reduce((s,r) => s + Number(r[3]||0), 0);
+        const tOut = (data.costs || []).reduce((s,r) => s + Number(r[2]||0), 0);
+        document.getElementById('stKg').innerText = tKg.toLocaleString();
+        document.getElementById('stCost').innerText = tOut.toLocaleString();
+        document.getElementById('stProfit').innerText = (tIn - tOut).toLocaleString();
+        document.getElementById('stMainMoney').innerText = `฿${(tIn - tOut).toLocaleString()}`;
+
+        document.getElementById('alarmList').innerHTML = (data.alarms || []).map((r, i) => `
+            <div class="card">
+                <div class="text-[11px]"><p class="text-cyan-400 font-bold">${r[1]}</p><p class="opacity-40">${r[0]} | ${r[2]}</p></div>
+                <button onclick="api('delete','alarms',[],${i})" class="btn-del">ลบ</button>
+            </div>`).reverse().join('');
+
+        document.getElementById('growList').innerHTML = (data.growLog || []).map((r, i) => `
+            <div class="relative rounded-xl overflow-hidden aspect-square border border-white/10 shadow-lg">
+                <img src="${r[2]}" class="w-full h-full object-cover">
+                <button onclick="api('delete','growLog',[],${i})" class="absolute top-0 right-0 bg-red-600 px-1.5 text-[10px] font-bold">X</button>
+            </div>`).reverse().slice(0, 6).join('');
+
+        const hList = (data.harvests || []).map((r, i) => `<div class="card"><div class="text-[11px]"><p class="text-emerald-400 font-bold">รับ +฿${Number(r[3]).toLocaleString()}</p><p class="opacity-40">${r[0]}</p></div><button onclick="api('delete','harvests',[],${i})" class="btn-del">ลบ</button></div>`);
+        const cList = (data.costs || []).map((r, i) => `<div class="card"><div class="text-[11px]"><p class="text-rose-400 font-bold">จ่าย -฿${Number(r[2]).toLocaleString()}</p><p class="opacity-40">${r[1]}</p></div><button onclick="api('delete','costs',[],${i})" class="btn-del">ลบ</button></div>`);
+        document.getElementById('transactionList').innerHTML = [...hList, ...cList].reverse().slice(0, 5).join('');
+        document.getElementById('loader').classList.add('hidden');
+    }
+    window.onload = fetchData;
+</script>
+</body>
+</html>

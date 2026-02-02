@@ -3,161 +3,251 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CHAYARAT FARM FINAL V14.2</title>
+    <title>CHAYARAT FARM V30.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&display=swap');
-        body { font-family: 'Sarabun', sans-serif; background: #022c22; color: #f0fdf4; padding-bottom: 80px; }
-        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
-        .input-box { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; width: 100%; color: white; outline: none; }
-        .btn-gold { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #064e3b; font-weight: 800; padding: 12px; border-radius: 12px; width: 100%; box-shadow: 0 4px 0 #b45309; }
-        .btn-del { background: #ef4444; color: white; padding: 5px 10px; border-radius: 8px; font-size: 10px; font-weight: bold; }
-        .card { background: rgba(0,0,0,0.4); padding: 12px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        body { font-family: 'Sarabun', sans-serif; background: #010d0a; color: #f0fdf4; padding-bottom: 90px; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border-radius: 28px; border: 1px solid rgba(255,255,255,0.08); }
+        .input-box { background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 14px; width: 100%; color: white; outline: none; }
+        .ai-bubble { background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(139, 92, 246, 0.05)); border-left: 5px solid #8b5cf6; padding: 15px; border-radius: 4px 22px 22px 22px; margin-bottom: 15px; font-size: 13px; }
+        .user-bubble { background: rgba(251, 191, 36, 0.1); border-right: 5px solid #fbbf24; padding: 15px; border-radius: 22px 4px 22px 22px; margin-bottom: 15px; font-size: 13px; align-self: flex-end; max-width: 85%; }
+        #chatWindow { display: flex; flex-direction: column; overflow-y: auto; height: 300px; scroll-behavior: smooth; }
     </style>
 </head>
 <body>
 
-<div id="loader" class="fixed inset-0 bg-black/90 z-50 hidden flex flex-col items-center justify-center text-yellow-400">
+<div id="loader" class="fixed inset-0 bg-black z-[99] flex flex-col items-center justify-center">
     <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-yellow-400 mb-4"></div>
-    <p class="text-xs">กำลังประมวลผล...</p>
+    <p class="text-yellow-400 text-[10px] font-bold tracking-widest">CONNECTING CHAYARAT V30...</p>
 </div>
 
-<div class="max-w-md mx-auto p-5">
-    <header class="flex justify-between items-center mb-6">
+<div class="max-w-md mx-auto p-6">
+    <header class="flex justify-between items-center mb-8">
         <div>
-            <h1 class="text-2xl font-black text-yellow-400 italic">CHAYARAT FARM</h1>
-            <p class="text-[10px] opacity-60">SMART FARM SYSTEM V14.2</p>
+            <h1 class="text-3xl font-black text-white italic">CHAYARAT <span class="text-yellow-400">FARM</span></h1>
+            <p class="text-[9px] text-emerald-500 font-bold uppercase tracking-[0.3em]">Guardian Mode Online</p>
         </div>
-        <div class="flex items-center gap-2 bg-emerald-500/20 px-3 py-1 rounded-full border border-emerald-500/30">
-            <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-            <span class="text-[10px] font-bold">LIVE</span>
-        </div>
+        <div id="statusDot" class="w-3 h-3 bg-emerald-500 rounded-full shadow-[0_0_10px_#10b981]"></div>
     </header>
 
-    <div class="glass p-5 mb-6 border-t-4 border-yellow-400 text-center shadow-xl">
-        <p class="text-[10px] opacity-50 mb-1 uppercase font-bold">กำไรสะสม</p>
-        <h2 class="text-4xl font-black text-white mb-4" id="stMainMoney">฿0</h2>
-        <div class="grid grid-cols-3 gap-2 text-[10px]">
-            <div class="bg-white/5 p-2 rounded-xl">ขาย (กก.)<br><b id="stKg" class="text-yellow-400 text-sm">0</b></div>
-            <div class="bg-white/5 p-2 rounded-xl">รายจ่าย<br><b id="stCost" class="text-rose-400 text-sm">0</b></div>
-            <div class="bg-white/5 p-2 rounded-xl">กำไร<br><b id="stProfit" class="text-emerald-400 text-sm">0</b></div>
+    <section class="glass p-6 mb-6">
+        <div class="flex justify-between items-center mb-4">
+            <div>
+                <p class="text-[10px] font-bold text-emerald-400 uppercase">Phetchabun Station</p>
+                <h3 id="tempText" class="text-5xl font-black">--°C</h3>
+                <p id="weatherDesc" class="text-xs opacity-60 italic uppercase">Syncing...</p>
+            </div>
+            <i class="fa-solid fa-cloud-bolt text-5xl text-yellow-400 opacity-80"></i>
         </div>
-    </div>
-
-    <div class="glass p-4 mb-6 border-l-4 border-cyan-400">
-        <p class="text-cyan-400 font-bold text-xs mb-3 italic">🔔 รายการแจ้งเตือน</p>
-        <div class="space-y-2 mb-4">
-            <input id="alTitle" placeholder="ทำอะไร?" class="input-box text-sm">
-            <div class="grid grid-cols-2 gap-2"><input id="alDate" type="date" class="input-box text-xs"><input id="alTime" type="time" class="input-box text-xs"></div>
-            <button onclick="saveAlarm()" class="bg-cyan-600 text-white w-full py-3 rounded-xl font-bold text-sm">บันทึกแจ้งเตือน</button>
+        <div class="bg-black/40 p-3 rounded-2xl border border-white/5">
+            <p id="aiWeatherTip" class="text-[11px] text-white/80 italic">AI กำลังวิเคราะห์ปัจจัยเสี่ยง...</p>
         </div>
-        <div id="alarmList" class="max-h-40 overflow-y-auto pr-1"></div>
-    </div>
+    </section>
 
-    <div class="glass p-4 mb-6 border-l-4 border-yellow-400">
-        <p class="text-yellow-400 font-bold text-xs mb-3 italic">📸 ถ่ายรูปบันทึกพริก</p>
-        <input type="file" id="fInput" accept="image/*" class="hidden" onchange="compressImg(this)">
-        <button onclick="document.getElementById('fInput').click()" class="w-full py-3 border-2 border-dashed border-white/20 rounded-xl text-[10px] mb-3">แตะเพื่อถ่ายรูป</button>
-        <img id="imgPrev" class="hidden mb-3 rounded-lg w-full h-32 object-cover">
-        <button onclick="sendGrow()" class="btn-gold !py-2 text-xs">บันทึกรูปภาพ</button>
-        <div id="growList" class="grid grid-cols-3 gap-2 mt-4"></div>
-    </div>
-
-    <div class="grid grid-cols-2 gap-3 mb-6">
-        <div class="glass p-4 border-b-4 border-emerald-500">
-            <p class="text-emerald-400 font-bold text-[10px] mb-2 uppercase">🌶️ ขายพริก</p>
-            <input id="hKg" type="number" placeholder="กก." class="input-box mb-2 text-xs">
-            <input id="hPrice" type="number" placeholder="ราคา/กก." class="input-box mb-2 text-xs">
-            <button onclick="sendHarvest()" class="w-full bg-emerald-600 py-2 rounded-lg text-[10px] font-bold">บันทึกขาย</button>
+    <section class="glass p-5 mb-6 border-l-4 border-rose-500">
+        <div class="flex items-center gap-2 mb-4">
+            <i class="fa-solid fa-bell text-rose-500 animate-swing"></i>
+            <p class="text-white font-black text-[10px] uppercase tracking-widest">การแจ้งเตือนและภารกิจ (Alarms)</p>
         </div>
-        <div class="glass p-4 border-b-4 border-rose-500">
-            <p class="text-rose-400 font-bold text-[10px] mb-2 uppercase">💸 จ่ายเงิน</p>
-            <input id="cName" placeholder="ค่าอะไร" class="input-box mb-2 text-xs">
-            <input id="cAmount" type="number" placeholder="กี่บาท" class="input-box mb-2 text-xs">
-            <button onclick="sendCost()" class="w-full bg-rose-600 py-2 rounded-lg text-[10px] font-bold">บันทึกจ่าย</button>
+        <div id="alarmList" class="space-y-2 mb-4 max-h-40 overflow-y-auto">
+            </div>
+        <div class="bg-black/40 p-3 rounded-2xl border border-white/5 space-y-2">
+            <input id="alarmNote" placeholder="ต้องทำอะไร? (เช่น พ่นยากำจัดรา)" class="input-box text-xs">
+            <input id="alarmTime" type="datetime-local" class="input-box text-xs">
+            <button onclick="addAlarm()" class="w-full bg-rose-600 text-white font-black py-2 rounded-xl text-[10px] uppercase">ตั้งแจ้งเตือนใหม่</button>
         </div>
-    </div>
+    </section>
 
-    <div class="glass p-4 border-l-4 border-white/20 shadow-inner">
-        <p class="text-white font-bold text-[10px] mb-3 opacity-30 uppercase tracking-widest text-center">ประวัติล่าสุด</p>
-        <div id="transactionList"></div>
-    </div>
+    <section class="glass p-5 mb-6 border-l-4 border-yellow-400">
+        <p class="text-yellow-400 font-black text-[10px] uppercase mb-4 tracking-widest">ตรวจแปลงรายวัน</p>
+        <div id="growList" class="grid grid-cols-2 gap-3 mb-4"></div>
+        <button onclick="document.getElementById('fInput').click()" class="w-full py-4 bg-yellow-400/5 border border-dashed border-yellow-400/30 rounded-2xl text-[10px] font-black text-yellow-400 uppercase">
+            <i class="fa-solid fa-camera mr-2"></i> ถ่ายรูปบันทึกตรวจสวน
+        </button>
+        <input type="file" id="fInput" accept="image/*" capture="environment" class="hidden" onchange="processFarmPhoto(this)">
+        <div id="photoActionArea" class="hidden mt-4 space-y-3">
+            <img id="imgPrev" class="rounded-2xl w-full h-52 object-cover border-2 border-yellow-400/20">
+            <input id="growDetail" placeholder="รายละเอียดรูปภาพ..." class="input-box text-sm">
+            <button onclick="sendGrow()" class="w-full bg-yellow-400 text-black font-black py-4 rounded-2xl text-[10px]">บันทึกรูปภาพลงฐานข้อมูล</button>
+        </div>
+    </section>
+
+    <section class="glass p-5 mb-6 border-l-4 border-purple-500">
+        <p class="text-purple-400 font-black text-[10px] uppercase mb-4 tracking-widest">ที่ปรึกษา AI Gemini</p>
+        <div id="chatWindow" class="bg-black/40 rounded-2xl mb-4 p-3 overflow-y-auto">
+            <div class="ai-bubble">สวัสดีครับลูกพี่! มีอะไรให้ AI ช่วยดูไหมครับ?</div>
+        </div>
+        <div id="aiImgArea" class="hidden mb-3 relative"><img id="aiImgPrev" class="w-full h-44 object-cover rounded-2xl border border-purple-500/40"><button onclick="cancelAiImg()" class="absolute top-3 right-3 bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center">✕</button></div>
+        <div class="flex gap-2">
+            <button onclick="document.getElementById('aiImgInput').click()" class="bg-white/5 w-14 h-14 rounded-2xl flex items-center justify-center border border-white/10"><i class="fa-solid fa-image text-purple-400"></i></button>
+            <input type="file" id="aiImgInput" accept="image/*" class="hidden" onchange="previewAiImg(this)">
+            <input id="aiQuestion" placeholder="ถาม AI..." class="input-box flex-1 text-xs">
+            <button onclick="askAI()" class="bg-purple-600 w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg"><i class="fa-solid fa-paper-plane text-xs"></i></button>
+        </div>
+    </section>
+
+    <section class="glass p-6 mb-12 border-b-4 border-emerald-500/20">
+        <div class="flex items-center gap-2 mb-6">
+            <i class="fa-solid fa-coins text-yellow-400"></i>
+            <h2 class="text-xs font-black tracking-widest uppercase">สรุปบัญชีฟาร์ม</h2>
+        </div>
+        <div class="flex justify-between items-end mb-8 bg-black/30 p-5 rounded-3xl border border-white/5">
+            <div>
+                <p class="text-[8px] font-black opacity-40 uppercase mb-1">กำไรสุทธิ</p>
+                <h3 id="stMainMoney" class="text-4xl font-black text-yellow-400 tracking-tighter">฿0</h3>
+            </div>
+            <div class="flex flex-col items-end space-y-1">
+                <p id="totalH" class="text-[11px] text-emerald-400 font-black">+฿0</p>
+                <p id="totalC" class="text-[11px] text-rose-500 font-black">-฿0</p>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <div class="bg-emerald-500/10 p-4 rounded-2xl space-y-2">
+                <p class="text-emerald-400 font-bold text-[9px] uppercase">รายได้</p>
+                <input id="hKg" type="number" placeholder="กก." class="input-box text-xs">
+                <input id="hPrice" type="number" placeholder="ราคา/กก." class="input-box text-xs">
+                <button onclick="sendHarvest()" class="w-full bg-emerald-600 text-white font-bold py-2 rounded-xl text-[9px]">บันทึก</button>
+            </div>
+            <div class="bg-rose-500/10 p-4 rounded-2xl space-y-2">
+                <p class="text-rose-400 font-bold text-[9px] uppercase">รายจ่าย</p>
+                <input id="cName" placeholder="รายการ" class="input-box text-xs">
+                <input id="cAmount" type="number" placeholder="บาท" class="input-box text-xs">
+                <button onclick="sendCost()" class="w-full bg-rose-600 text-white font-bold py-2 rounded-xl text-[9px]">บันทึก</button>
+            </div>
+        </div>
+        <div id="transactionList" class="space-y-2"></div>
+    </section>
 </div>
 
-<script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwM-Mh4p5209qbOwGpmB0yfDSbmLYcUGklNfrgAOhSPg3YK1nbwqHIS6cna6jWCSfjAKg/exec';
-    let base64Img = "";
+<nav class="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-xl border-t border-white/10 flex justify-around py-5 z-40">
+    <button class="text-yellow-400 flex flex-col items-center gap-1" onclick="window.scrollTo({top:0, behavior:'smooth'})"><i class="fa-solid fa-house text-xl"></i><span class="text-[8px] font-black uppercase">Home</span></button>
+    <button class="text-white/20 flex flex-col items-center gap-1" onclick="location.reload()"><i class="fa-solid fa-arrows-rotate text-xl"></i><span class="text-[8px] font-black uppercase">Sync</span></button>
+</nav>
 
-    async function api(action, sheet, row = [], index = null) {
-        document.getElementById('loader').classList.remove('hidden');
-        await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action, sheet, row, index }) });
-        setTimeout(() => { location.reload(); }, 800);
+<script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyRmvgXSG2FlsQ0H-Hn-akb-1yVee-UTAA2nRXw3d21oT29qeaiPEwcV70wSQvkOnfCIw/exec';
+    const GEMINI_KEY = 'AIzaSyDk8h-MqFSis42NxbW_8W0Pbci99mSUktY';
+    const WEATHER_KEY = 'da07122f462a4208a546f34e954c00f1';
+
+    let farmBase64Img = "", aiBase64Img = "";
+
+    async function init() {
+        try {
+            const res = await fetch(`${SCRIPT_URL}?t=${Date.now()}`);
+            const data = await res.json();
+            renderDashboard(data);
+            renderAlarms(data.alarms || []);
+        } catch (e) { }
+        finally { document.getElementById('loader').style.display = 'none'; loadWeather(); }
     }
 
-    function compressImg(input) {
+    async function loadWeather() {
+        try {
+            const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Phetchabun&units=metric&appid=${WEATHER_KEY}&lang=th`);
+            const d = await res.json();
+            if(d.cod === 200) {
+                document.getElementById('tempText').innerText = Math.round(d.main.temp) + '°C';
+                document.getElementById('weatherDesc').innerText = d.weather[0].description;
+                getAIWeatherAdvice(d.main.temp, d.weather[0].description);
+            }
+        } catch(e) { }
+    }
+
+    async function getAIWeatherAdvice(t, d) {
+        try {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: `อากาศจังหวัดเพชรบูรณ์ ${t} องศา ${d} แนะนำการดูแลพริกสั้นๆ 1 ประโยค` }] }] })
+            });
+            const data = await res.json();
+            document.getElementById('aiWeatherTip').innerText = data.candidates[0].content.parts[0].text;
+        } catch(e) { }
+    }
+
+    async function askAI() {
+        const qInput = document.getElementById('aiQuestion');
+        const chatWin = document.getElementById('chatWindow');
+        const q = qInput.value.trim();
+        if(!q && !aiBase64Img) return;
+        chatWin.innerHTML += `<div class="user-bubble">${aiBase64Img ? `<img src="${aiBase64Img}" class="max-h-40 rounded-xl mb-2">` : ''}<p>${q || "ช่วยดูรูปนี้หน่อย"}</p></div>`;
+        const curQ = q || "วิเคราะห์ภาพพืชนี้ครับ"; const curImg = aiBase64Img;
+        qInput.value = ""; cancelAiImg();
+        const aiId = 'ai_' + Date.now();
+        chatWin.innerHTML += `<div id="${aiId}" class="ai-bubble italic opacity-70">AI กำลังคิด...</div>`;
+        try {
+            let parts = [{ text: `ที่ปรึกษา Chayarat Farm: ${curQ}` }];
+            if (curImg) parts.push({ inline_data: { mime_type: "image/jpeg", data: curImg.split(',')[1] } });
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts }] }) });
+            const data = await res.json();
+            document.getElementById(aiId).innerHTML = `<b>AI:</b> ${data.candidates[0].content.parts[0].text}`;
+        } catch (e) { document.getElementById(aiId).innerText = "AI ขัดข้องครับ"; }
+        chatWin.scrollTop = chatWin.scrollHeight;
+    }
+
+    async function callAPI(action, sheet, row = [], index = null) {
+        document.getElementById('loader').style.display = 'flex';
+        await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action, sheet, row, index }) });
+        setTimeout(() => location.reload(), 1500);
+    }
+
+    function addAlarm() {
+        const n = document.getElementById('alarmNote').value;
+        const t = document.getElementById('alarmTime').value;
+        if(n && t) callAPI('add', 'alarms', [t.replace('T', ' '), n, 'รอดำเนินการ']);
+    }
+
+    function sendHarvest() { const k = document.getElementById('hKg').value; const p = document.getElementById('hPrice').value; if(k && p) callAPI('add', 'harvests', [new Date().toLocaleDateString('th-TH'), k, "พริก", k*p]); }
+    function sendCost() { const n = document.getElementById('cName').value; const a = document.getElementById('cAmount').value; if(n && a) callAPI('add', 'costs', [new Date().toLocaleDateString('th-TH'), n, a]); }
+    function sendGrow() { if(farmBase64Img) callAPI('add', 'growLog', [new Date().toLocaleString('th-TH'), document.getElementById('growDetail').value || "ตรวจสวน", farmBase64Img]); }
+
+    function renderAlarms(alarms) {
+        document.getElementById('alarmList').innerHTML = alarms.map((r, i) => `
+            <div class="bg-black/30 p-3 rounded-2xl flex justify-between items-center border border-white/5 shadow-sm">
+                <div>
+                    <p class="text-[10px] text-rose-400 font-bold">${r[0]}</p>
+                    <p class="text-xs text-white/80">${r[1]}</p>
+                </div>
+                <button onclick="callAPI('delete','alarms',[],${i})" class="text-rose-500 text-xs px-2">✕</button>
+            </div>
+        `).join('') || '<p class="text-[10px] opacity-30 text-center py-4 italic">ไม่มีการแจ้งเตือนในขณะนี้</p>';
+    }
+
+    function renderDashboard(data) {
+        const hSum = (data.harvests || []).reduce((s, r) => s + Number(r[3]||0), 0);
+        const cSum = (data.costs || []).reduce((s, r) => s + Number(r[2]||0), 0);
+        document.getElementById('stMainMoney').innerText = `฿${(hSum - cSum).toLocaleString()}`;
+        document.getElementById('totalH').innerText = `+฿${hSum.toLocaleString()}`;
+        document.getElementById('totalC').innerText = `-฿${cSum.toLocaleString()}`;
+        document.getElementById('growList').innerHTML = (data.growLog || []).reverse().slice(0, 2).map(r => `<div class="h-36 rounded-2xl overflow-hidden border border-white/5"><img src="${r[2]}" class="w-full h-full object-cover"></div>`).join('');
+        const txs = [
+            ...(data.harvests || []).map((r, i) => `<div class="bg-black/30 p-3 rounded-xl border-l-4 border-emerald-500 flex justify-between text-[10px]"><span>รับ +฿${Number(r[3]).toLocaleString()}</span><button onclick="callAPI('delete','harvests',[],${i})" class="opacity-20">✕</button></div>`),
+            ...(data.costs || []).map((r, i) => `<div class="bg-black/30 p-3 rounded-xl border-l-4 border-rose-500 flex justify-between text-[10px]"><span>${r[1]} -฿${Number(r[2]).toLocaleString()}</span><button onclick="callAPI('delete','costs',[],${i})" class="opacity-20">✕</button></div>`)
+        ];
+        document.getElementById('transactionList').innerHTML = txs.reverse().slice(0, 5).join('');
+    }
+
+    function processFarmPhoto(input) {
         const reader = new FileReader();
         reader.onload = (e) => {
-            const img = new Image();
-            img.src = e.target.result;
+            const img = new Image(); img.src = e.target.result;
             img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const scale = 500 / img.width;
+                const canvas = document.createElement('canvas'); const scale = 500 / img.width;
                 canvas.width = 500; canvas.height = img.height * scale;
-                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-                base64Img = canvas.toDataURL('image/jpeg', 0.6);
-                document.getElementById('imgPrev').src = base64Img;
-                document.getElementById('imgPrev').classList.remove('hidden');
-            }
+                canvas.getContext('2d').drawImage(img, 0, 0, 500, canvas.height);
+                farmBase64Img = canvas.toDataURL('image/jpeg', 0.3);
+                document.getElementById('imgPrev').src = farmBase64Img;
+                document.getElementById('photoActionArea').classList.remove('hidden');
+            };
         };
         reader.readAsDataURL(input.files[0]);
     }
+    function previewAiImg(input) { const r = new FileReader(); r.onload = (e) => { aiBase64Img = e.target.result; document.getElementById('aiImgPrev').src = aiBase64Img; document.getElementById('aiImgArea').classList.remove('hidden'); }; r.readAsDataURL(input.files[0]); }
+    function cancelAiImg() { aiBase64Img = ""; document.getElementById('aiImgArea').classList.add('hidden'); }
 
-    function saveAlarm() {
-        const d = document.getElementById('alDate').value.split('-');
-        api('add', 'alarms', [`${d[2]}/${d[1]}/${d[0]}`, document.getElementById('alTitle').value, document.getElementById('alTime').value, "Active"]);
-    }
-    function sendGrow() { api('add', 'growLog', [new Date().toLocaleDateString('th-TH'), "Update", base64Img]); }
-    function sendHarvest() { 
-        const kg = document.getElementById('hKg').value, pr = document.getElementById('hPrice').value;
-        api('add', 'harvests', [new Date().toLocaleDateString('th-TH'), kg, "พริก", kg * pr]); 
-    }
-    function sendCost() { api('add', 'costs', [new Date().toLocaleDateString('th-TH'), document.getElementById('cName').value, document.getElementById('cAmount').value]); }
-
-    async function fetchData() {
-        try {
-            const res = await fetch(SCRIPT_URL);
-            const data = await res.json();
-            render(data);
-        } catch(e) { document.getElementById('loader').classList.add('hidden'); }
-    }
-
-    function render(data) {
-        const tKg = (data.harvests || []).reduce((s,r) => s + Number(r[1]||0), 0);
-        const tIn = (data.harvests || []).reduce((s,r) => s + Number(r[3]||0), 0);
-        const tOut = (data.costs || []).reduce((s,r) => s + Number(r[2]||0), 0);
-        document.getElementById('stKg').innerText = tKg.toLocaleString();
-        document.getElementById('stCost').innerText = tOut.toLocaleString();
-        document.getElementById('stProfit').innerText = (tIn - tOut).toLocaleString();
-        document.getElementById('stMainMoney').innerText = `฿${(tIn - tOut).toLocaleString()}`;
-
-        document.getElementById('alarmList').innerHTML = (data.alarms || []).map((r, i) => `
-            <div class="card">
-                <div class="text-[11px]"><p class="text-cyan-400 font-bold">${r[1]}</p><p class="opacity-40">${r[0]} | ${r[2]}</p></div>
-                <button onclick="api('delete','alarms',[],${i})" class="btn-del">ลบ</button>
-            </div>`).reverse().join('');
-
-        document.getElementById('growList').innerHTML = (data.growLog || []).map((r, i) => `
-            <div class="relative rounded-xl overflow-hidden aspect-square border border-white/10 shadow-lg">
-                <img src="${r[2]}" class="w-full h-full object-cover">
-                <button onclick="api('delete','growLog',[],${i})" class="absolute top-0 right-0 bg-red-600 px-1.5 text-[10px] font-bold">X</button>
-            </div>`).reverse().slice(0, 6).join('');
-
-        const hList = (data.harvests || []).map((r, i) => `<div class="card"><div class="text-[11px]"><p class="text-emerald-400 font-bold">รับ +฿${Number(r[3]).toLocaleString()}</p><p class="opacity-40">${r[0]}</p></div><button onclick="api('delete','harvests',[],${i})" class="btn-del">ลบ</button></div>`);
-        const cList = (data.costs || []).map((r, i) => `<div class="card"><div class="text-[11px]"><p class="text-rose-400 font-bold">จ่าย -฿${Number(r[2]).toLocaleString()}</p><p class="opacity-40">${r[1]}</p></div><button onclick="api('delete','costs',[],${i})" class="btn-del">ลบ</button></div>`);
-        document.getElementById('transactionList').innerHTML = [...hList, ...cList].reverse().slice(0, 5).join('');
-        document.getElementById('loader').classList.add('hidden');
-    }
-    window.onload = fetchData;
+    window.onload = init;
 </script>
 </body>
 </html>
